@@ -1,7 +1,6 @@
 const crypto = require("crypto");
 const fs = require("fs/promises");
 const path = require("path");
-
 const sort = require("sort-package-json");
 
 function escapeRegExp(string) {
@@ -25,8 +24,7 @@ async function main({ rootDirectory }) {
   const ENV_PATH = path.join(rootDirectory, ".env");
   const README_PATH = path.join(rootDirectory, "README.md");
   const PACKAGE_JSON_PATH = path.join(rootDirectory, "package.json");
-
-  const REPLACER = "kpop-stack-template";
+  const REPLACER = "lofi-stack-template";
 
   const DIR_NAME = path.basename(rootDirectory);
   const SUFFIX = getRandomString(2);
@@ -39,15 +37,6 @@ async function main({ rootDirectory }) {
     fs.readFile(README_PATH, "utf-8"),
     fs.readFile(PACKAGE_JSON_PATH, "utf-8"),
   ]);
-
-  // Create a new env file with all the necessary keys.
-  // This will create a new key to give you a new session key
-  // You will want to be sure to add your own credentials
-  // as well.
-  const newEnv = env.replace(
-    /^SESSION_SECRET=.*$/m,
-    `SESSION_SECRET="${getRandomString(16)}"`
-  );
 
   // Parse the README and replace the name with our app name
   const newReadme = readme.replace(
@@ -64,22 +53,11 @@ async function main({ rootDirectory }) {
     ) + "\n";
 
   await Promise.all([
-    fs.writeFile(ENV_PATH, newEnv),
+    fs.writeFile(ENV_PATH, env),
     fs.writeFile(README_PATH, newReadme),
     fs.writeFile(PACKAGE_JSON_PATH, newPackageJson),
   ]);
 
-  console.log(
-    `
-Setup is almost complete! Follow these steps to finish initialization:
-- Create a new Supabase project and perform the SQL queries described in the README.
-- Add your Supabase credentials (SUPABASE_URL and SUPABASE_ANON_KEY) in your .env file.
-- Run the first build (this generates the server you will run):
-  npm run build
-- You're now ready to rock and roll 🤘
-  npm run dev
-    `.trim()
-  );
 }
 
 module.exports = main;
